@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from django_redis import get_redis_connection
@@ -9,7 +10,7 @@ import random
 from meiduo_mall.libs.captcha.captcha import captcha
 from verifications import constants
 from . import serializers
-from meiduo_mall.libs.yuntongxun.sms import CCP
+from celery_tasks.sms.tasks import send_sms_code
 
 # Create your views here.
 
@@ -57,10 +58,7 @@ class SMSCodeView(GenericAPIView):
         pl.setex('send_flag_%s' % mobile, constants.SEND_SMS_CODE_INTERVAL, 1)
         pl.execute()
 
-        # 发送短信
-        ccp = CCP()
-        sms_code_expires = str(constants.SMS_CODE_REDIS_EXPIRES // 60)
-        ccp.send_template_sms(mobile, [sms_code, sms_code_expires], constants.SMS_CODE_TEMP_ID)
+        send_sms_code.delay(mobile, sms_code)
 
         # 返回
-        return Response({'message': 'OK'})
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)

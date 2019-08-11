@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 logger = logging.getLogger('django')
 
+
 class CheckImageCodeSerializer(serializers.Serializer):
     """
     图片验证码校验序列化器
