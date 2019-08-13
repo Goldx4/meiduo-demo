@@ -29,12 +29,16 @@ class ImageCodeView(APIView):
 
         # 获取redis连接对象
         redis_conn = get_redis_connection('verify_codes')
+        # 将图片验证码 按照 【img_id：text】形式存入redis中
         redis_conn.setex("img_%s" % image_code_id, constants.IMAGE_CODE_REDIS_EXPIRES, text)
 
         return HttpResponse(image, content_type="images/jpg")
 
 
 class SMSCodeView(GenericAPIView):
+    """
+    短信验证码
+    """
     serializer_class = serializers.CheckImageCodeSerializer
 
     def get(self, request, mobile):
@@ -62,3 +66,7 @@ class SMSCodeView(GenericAPIView):
 
         # 返回
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
+
+
+class SMSCodeTokenByView():
+    pass

@@ -1,9 +1,11 @@
+import re
 from rest_framework import serializers, status
-
 from django_redis import get_redis_connection
 from redis import RedisError
 import logging
 from rest_framework.response import Response
+
+from users.models import User
 
 logger = logging.getLogger('django')
 
@@ -44,9 +46,20 @@ class CheckImageCodeSerializer(serializers.Serializer):
             raise serializers.ValidationError('验证码错误')
 
         # redis中发送短信验证码的标识 send_flag_<mobile> : 1， 由redis维护60s的有效期
-        mobile = self.context['view'].kwargs['mobile']
-        send_flag = redis_conn.get('send_flag_%s' % mobile)
-        if send_flag:
-            raise serializers.ValidationError('发送短信次数过于频繁')
+        mobile = self.context['view'].kwargs.get('mobile')
+        if mobile:
+            send_flag = redis_conn.get('send_flag_%s' % mobile)
+            if send_flag:
+                raise serializers.ValidationError('发送短信次数过于频繁')
 
         return attrs
+
+
+
+
+
+
+
+
+
+
