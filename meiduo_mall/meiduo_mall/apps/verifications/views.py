@@ -1,9 +1,7 @@
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView, CreateAPIView
-from rest_framework.viewsets import GenericViewSet
-from rest_framework import mixins
+from rest_framework.generics import GenericAPIView
 from django_redis import get_redis_connection
 from django.http.response import HttpResponse
 from rest_framework.response import Response
@@ -13,7 +11,6 @@ from meiduo_mall.libs.captcha.captcha import captcha
 from verifications import constants
 from . import serializers
 from celery_tasks.sms.tasks import send_sms_code
-from users.models import User
 
 # Create your views here.
 
@@ -71,45 +68,5 @@ class SMSCodeView(GenericAPIView):
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
-class UsernameCountView(APIView):
-    """
-    用户名数量
-    """
-
-    def get(self, request, username):
-        """
-        获取指定用户名数量
-        """
-        count = User.objects.filter(username=username).count()
-
-        data = {
-            'username': username,
-            'count': count
-        }
-
-        return Response(data)
-
-
-class MobileCountView(APIView):
-    """
-    手机号数量
-    """
-    def get(self, request, mobile):
-        """
-        获取指定手机号数量
-        """
-        count = User.objects.filter(mobile=mobile).count()
-
-        data = {
-            'mobile': mobile,
-            'count': count
-        }
-
-        return Response(data)
-
-
-class UserView(CreateAPIView):
-    """
-    用户信息
-    """
-    serializer_class = serializers.CreateUserSerializer
+class SMSCodeTokenByView():
+    pass
