@@ -1,6 +1,6 @@
 from django.db import models
 from meiduo_mall.utils.models import BaseModel
-from itsdangerous import TimedJSONWebSignatureSerializer as TJWSSerializer
+from itsdangerous import TimedJSONWebSignatureSerializer as TJWSSerializer, BadData
 from django.conf import settings
 
 from . import constants
@@ -31,3 +31,13 @@ class OAuthQQUser(BaseModel):
         data = {'openid': openid}
         token = serializer.dumps(data)
         return token.decode()
+
+    @staticmethod
+    def check_save_user_token(access_token):
+        serializer = TJWSSerializer(settings.SECRET_KEY, expires_in=constants.SAVE_QQ_USER_TOKEN_EXPIRES)
+        try:
+            payload = serializer.loads(access_token)
+        except BadData:
+            return None
+        else:
+            return payload.get('openid')

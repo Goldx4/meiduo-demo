@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_jwt.settings import api_settings
@@ -7,6 +8,7 @@ from rest_framework_jwt.settings import api_settings
 from .utils import OAuthQQ
 from .models import OAuthQQUser
 from .exceptions import QQAPIException
+from .serializers import OAuthQQUserSerializer
 
 # Create your views here.
 
@@ -26,10 +28,13 @@ class QQAuthURLView(APIView):
         return Response({'auth_url': auth_url}, status=status.HTTP_200_OK)
 
 
-class QQAuthUserView(APIView):
+class QQAuthUserView(GenericAPIView):
     """
     QQ登录的用户
     """
+
+    serializer_class = OAuthQQUserSerializer
+
     def get(self, request):
         """
         获取qq登录的用户数据
@@ -69,6 +74,22 @@ class QQAuthUserView(APIView):
                 'username': user.username
             })
 
+    def post(self, request):
+        # 调用序列化器检查数据，保存
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        # 生成记录登录状态的token
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+        return Response({
+            'token': token,
+            'user_id': user.id,
+            'username': user.username
+        })
 
 
 
