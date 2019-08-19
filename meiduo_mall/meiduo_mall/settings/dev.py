@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'verifications.apps.VerificationsConfig',
     'oauth.apps.OauthConfig',
+    'areas.apps.AreasConfig',
 ]
 
 MIDDLEWARE = [
@@ -240,6 +241,14 @@ CORS_ORIGIN_WHITELIST = (
     'http://api.meiduo.site:8000'
 )
 
+# DRF扩展
+REST_FRAMEWORK_EXTENSIONS = {
+    # 缓存时间
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60,
+    # 缓存存储
+    'DEFAULT_USE_CACHE': 'default',
+}
+
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 
 # QQ登录参数
@@ -259,3 +268,4 @@ EMAIL_HOST_USER = 'jking_ios@163.com'
 EMAIL_HOST_PASSWORD = 'jinxin1108'
 #收件人看到的发件人
 EMAIL_FROM = '美多商城<jking_ios@163.com>'
+
