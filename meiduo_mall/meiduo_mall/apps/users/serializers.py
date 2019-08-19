@@ -6,6 +6,7 @@ import re
 
 from .models import User
 from .utils import get_user_by_account
+from celery_tasks.email.tasks import send_verify_email
 
 logger = logging.getLogger('django')
 
@@ -163,3 +164,34 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    用户详细信息序列化器
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'mobile', 'email', 'email_active']
+
+
+class EmailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'email')
+        extra_kwargs = {
+            'email': {
+                'required': True
+            }
+        }
+
+    def update(self, instance, validated_data):
+        email = validated_data['email']
+        instance.email = email
+        instance.save()
+
+        # 生成验证链接
+        verify_url = instance.generate_verify_email_url()
+        # 发送验证邮件
+        send_verify_email.delay(email, verify_url)
+        return instance

@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^authorizations/$', obtain_jwt_token),
     url(r'^accounts/(?P<account>\w{5,20})/password/token/$', views.PasswordTokenView.as_view()),  # 获取修改密码的token
     url(r'^users/(?P<pk>\d+)/password/$', views.PasswordView.as_view()),  # 重置密码
+    url(r'^user/$', views.UserDetailView.as_view()),  # 用户个人中心
+    url(r'^emails/$', views.EmailView.as_view()),  # 用户保存邮箱并发送验证邮件
 ]
